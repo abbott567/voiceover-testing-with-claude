@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+.claude/settings.local.json
+
+# Created by setup.sh, because the dictionary changes between macOS versions
+.claude/refs/voiceover.sdef

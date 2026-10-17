@@ -1,0 +1,13 @@
+{
+  "name": "voiceover-testing-with-claude",
+  "version": "1.0.0",
+  "description": "Companion repo for the post Screen reader testing with Claude Code, VoiceOver and Gherkin",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start": "node app/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

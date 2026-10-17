@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.claude/scripts/vo.sh *)",
+      "Bash(./.claude/scripts/vo.sh *)",
+      "Bash(open -a Safari *)"
+    ]
+  }
+}

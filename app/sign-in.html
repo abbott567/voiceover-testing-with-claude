@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in - Example service</title>
+  <link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    /*
+      Styling borrowed from craigabbott.co.uk: IBM Plex Sans, the pink
+      primary and plum accent palettes, outlined h1, wavy link hover,
+      and the bordered button with a hard 2px shadow. Colours use
+      light-dark() so the page follows the system colour scheme like
+      the real site does.
+    */
+
+    @font-face {
+      font-family: "IBM Plex Sans";
+      font-style: normal;
+      font-weight: 100 700;
+      src: url(/assets/fonts/ibm-plex-sans-latin-wght-normal.woff2) format("woff2-variations");
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "IBM Plex Sans";
+      font-style: italic;
+      font-weight: 100 700;
+      src: url(/assets/fonts/ibm-plex-sans-latin-wght-italic.woff2) format("woff2-variations");
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "IBM Plex Sans Fallback";
+      src: local("Arial");
+      size-adjust: 99.71%;
+      ascent-override: 102.8%;
+      descent-override: 27.58%;
+      line-gap-override: 0%;
+    }
+
+    :root {
+      color-scheme: light dark;
+
+      --ratio: 1.5;
+      --s0: 1.1875rem;
+      --s1: calc(var(--s0) * var(--ratio));
+      --s2: calc(var(--s1) * var(--ratio));
+      --s3: calc(var(--s2) * var(--ratio));
+      --s-1: calc(var(--s0) / var(--ratio));
+      --s-2: calc(var(--s-1) / var(--ratio));
+
+      --space-xxxs: var(--s-2);
+      --space-xxs: var(--s-1);
+      --space-xs: var(--s0);
+      --space-s: var(--s1);
+      --space-m: var(--s2);
+      --space-l: var(--s3);
+      --space-xl: calc(var(--space-l) * var(--ratio));
+
+      --font-family: "IBM Plex Sans", "IBM Plex Sans Fallback", sans-serif;
+      --font-size-xs: 1rem;
+      --font-size-s: var(--s0);
+      --font-size-m: var(--s1);
+      --font-size-l: var(--s2);
+      --font-size-xl: var(--s3);
+
+      --tap-size: 44px;
+      --width-text: 60ch;
+
+      /* Neutrals */
+      --c-4-neutral: light-dark(#150307, #180f24);
+      --c-2-neutral: light-dark(#382126, #251736);
+      --c-1-neutral: light-dark(#4b3237, #4e346d);
+      --c0-neutral: light-dark(#5e4449, #3e2d53);
+      --c1-neutral: light-dark(#866a6f, #634785);
+      --c2-neutral: light-dark(#b09297, #a893a8);
+      --c3-neutral: light-dark(#ecd5db, #c1b4c5);
+      --c4-neutral: light-dark(#fdeaef, #eae1ed);
+      --c-ghost-neutral: light-dark(#5e44490a, #63478533);
+
+      /* Primary (pink) */
+      --c-1-primary: light-dark(#a2315b, #d7428f);
+      --c0-primary: light-dark(#ca567d, #f075b5);
+      --c1-primary: light-dark(#e87197, #fa9ece);
+      --c2-primary: light-dark(#ff8db2, #ffcce6);
+
+      /* Accent (plum) */
+      --c-2-accent: light-dark(#382447, #936243);
+      --c-1-accent: light-dark(#4e385e, #c47645);
+      --c0-accent: light-dark(#644e75, #df8f5d);
+      --c1-accent: light-dark(#88719b, #f4b994);
+
+      /* Success and error */
+      --c-1-success: light-dark(#196449, #5ec98b);
+      --c1-success: light-dark(#5ca184, #8de7b3);
+      --c-ghost-success: light-dark(#4e745e1a, #5ec98b1a);
+      --c-1-error: light-dark(#812433, #ec5151);
+      --c0-error: light-dark(#9f404b, #ec5151);
+      --c1-error: light-dark(#c5626b, #fc8d8d);
+      --c-ghost-error: light-dark(#a136361a, #ec51511a);
+
+      /* Semantic colours */
+      --colour-page: light-dark(var(--c4-neutral), var(--c-4-neutral));
+      --colour-surface: light-dark(var(--c3-neutral), var(--c-2-neutral));
+      --colour-border: var(--c1-neutral);
+      --colour-border-faint: light-dark(var(--c2-neutral), var(--c0-neutral));
+      --colour-text-body: light-dark(var(--c-4-neutral), var(--c4-neutral));
+      --colour-text-subdued: light-dark(var(--c-1-neutral), var(--c3-neutral));
+      --colour-text-accent: var(--c0-accent);
+      --colour-text-link: var(--colour-text-accent);
+      --colour-text-link-hover: light-dark(var(--c-1-accent), var(--c1-accent));
+      --colour-text-success: light-dark(var(--c-1-success), var(--c1-success));
+      --colour-text-error: light-dark(var(--c-1-error), var(--c1-error));
+      --colour-focus-highlight: light-dark(var(--c0-primary), var(--c2-primary));
+      --colour-focus-text: light-dark(var(--c-1-primary), var(--c2-primary));
+      --colour-selection: light-dark(var(--c-1-primary), var(--c0-primary));
+
+      --focus-outline: 3px solid var(--colour-focus-highlight);
+      --focus-outline-offset: 4px;
+      --focus-box-shadow: 0 0 0 4px var(--colour-page);
+      --text-underline-offset: .125em;
+    }
+
+    @media (max-width: 559px) {
+      :root {
+        --ratio: 1.3;
+      }
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body,
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-family);
+      font-size: var(--font-size-s);
+      line-height: 1.5;
+      color: var(--colour-text-body);
+      background-color: var(--colour-page);
+    }
+
+    ::selection {
+      color: var(--colour-page);
+      background-color: var(--colour-selection);
+    }
+
+    button,
+    h1,
+    h2,
+    input,
+    label {
+      line-height: 1.1;
+    }
+
+    h1,
+    h2 {
+      font-weight: 700;
+      text-wrap: balance;
+    }
+
+    /* Outlined h1, as on the site */
+    h1 {
+      --_colour-stroke: var(--c1-primary);
+      font-size: var(--font-size-xl);
+      color: var(--colour-surface);
+      text-shadow:
+        -1px -1px 0 var(--_colour-stroke),
+        1px -1px 0 var(--_colour-stroke),
+        -1px 1px 0 var(--_colour-stroke),
+        1px 1px 0 var(--_colour-stroke);
+    }
+
+    @supports (-webkit-text-stroke: 1px black) {
+      h1 {
+        --_colour-stroke: light-dark(var(--c0-accent), var(--c1-primary));
+        -webkit-text-stroke: .07em var(--_colour-stroke);
+        text-shadow: none;
+        paint-order: stroke fill;
+      }
+    }
+
+    @media (forced-colors: active) {
+      h1 {
+        -webkit-text-stroke: 0;
+        text-shadow: none;
+      }
+    }
+
+    h2 {
+      font-size: var(--font-size-l);
+    }
+
+    a {
+      color: var(--colour-text-link);
+      text-underline-offset: var(--text-underline-offset);
+    }
+
+    a:hover {
+      color: var(--colour-text-link-hover);
+      text-decoration-line: underline;
+      text-decoration-style: wavy;
+      text-decoration-color: var(--colour-text-link-hover);
+    }
+
+    /* Header */
+    .site-header {
+      border-bottom: 1px solid var(--colour-border);
+    }
+
+    .site-header-bar {
+      display: flex;
+      gap: var(--space-xs);
+      align-items: center;
+      width: min(1400px, 100% - var(--space-xs) * 2);
+      margin-inline: auto;
+      padding-block: var(--space-xxs);
+    }
+
+    .site-logo-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xxs);
+      padding: var(--space-xxs);
+      color: var(--colour-text-body);
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .site-logo-link:hover {
+      --_logo-ink: var(--colour-text-link-hover);
+      color: var(--colour-text-link-hover);
+      text-decoration: underline wavy var(--colour-text-link-hover);
+    }
+
+    .site-logo {
+      display: flex;
+      width: 3.5rem;
+      flex-shrink: 0;
+    }
+
+    .site-logo svg {
+      width: 100%;
+      height: auto;
+    }
+
+    .logo-site-stop {
+      fill: var(--c0-primary);
+    }
+
+    @media (forced-colors: active) {
+      .logo-site-stop,
+      .logo-site-swoosh {
+        fill: LinkText;
+      }
+    }
+
+    /* Main */
+    main {
+      width: min(840px, 100% - var(--space-xs) * 2);
+      margin-inline: auto;
+      margin-block-start: var(--space-xl);
+      padding-block-end: var(--space-xl);
+    }
+
+    .page-heading {
+      padding-block-end: var(--space-s);
+      margin-block-end: var(--space-m);
+      border-bottom: 1px solid var(--colour-border);
+    }
+
+    form {
+      max-width: var(--width-text);
+    }
+
+    .field {
+      margin-block-end: var(--space-s);
+    }
+
+    .field--error {
+      padding-inline-start: var(--space-xs);
+      border-inline-start: 5px solid var(--colour-text-error);
+    }
+
+    label {
+      display: block;
+      margin-block-end: var(--space-xxs);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    input {
+      --_colour-border: var(--colour-text-body);
+      width: 100%;
+      padding: var(--space-xxxs) var(--space-xxs);
+      font-family: inherit;
+      font-size: inherit;
+      line-height: 1;
+      color: var(--colour-text-body);
+      background: var(--colour-page);
+      border: 2px solid var(--_colour-border);
+    }
+
+    .input--error {
+      --_colour-border: var(--colour-text-error);
+    }
+
+    .error-message {
+      margin-block-end: var(--space-xxs);
+      font-weight: 500;
+      color: var(--colour-text-error);
+    }
+
+    .error-summary {
+      margin-block-end: var(--space-m);
+      padding: var(--space-xs);
+      background: var(--c-ghost-error);
+      border: 2px solid var(--colour-text-error);
+      border-inline-start-width: 5px;
+    }
+
+    .error-summary h2 {
+      margin-block-end: var(--space-xxs);
+      font-size: var(--font-size-m);
+      color: var(--colour-text-error);
+    }
+
+    .error-summary ul {
+      margin: 0;
+      padding-inline-start: 1.25em;
+    }
+
+    .error-summary li + li {
+      margin-block-start: var(--space-xxxs);
+    }
+
+    .error-summary a {
+      color: var(--colour-text-error);
+      font-weight: 500;
+    }
+
+    .error-summary a:hover {
+      color: var(--colour-text-error);
+      text-decoration-color: var(--colour-text-error);
+    }
+
+    .panel {
+      padding: var(--space-s) var(--space-xs);
+      background: var(--c-ghost-success);
+      border: 2px solid var(--colour-text-success);
+      border-inline-start-width: 5px;
+    }
+
+    .panel h1 {
+      margin-block-end: var(--space-xxs);
+      font-size: var(--font-size-l);
+      color: var(--colour-text-body);
+      -webkit-text-stroke: 0;
+      text-shadow: none;
+    }
+
+    .panel p {
+      color: var(--colour-text-subdued);
+    }
+
+    button {
+      min-height: var(--tap-size);
+      padding: var(--space-xxxs) var(--space-xs);
+      font: inherit;
+      font-weight: 500;
+      color: var(--colour-text-body);
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--colour-border);
+      box-shadow: 0 2px 0 var(--colour-border);
+    }
+
+    button:hover {
+      color: var(--colour-text-link-hover);
+      outline: .1rem dotted var(--colour-border-faint);
+      background: var(--colour-surface);
+    }
+
+    /*
+      Focus, matching the site's pink outline with a page-coloured halo.
+      The error summary and success panel use :focus rather than
+      :focus-visible so the ring shows however focus was moved there.
+    */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    [tabindex="-1"]:focus {
+      outline: var(--focus-outline);
+      outline-offset: var(--focus-outline-offset);
+      box-shadow: var(--focus-box-shadow);
+    }
+
+    a:focus-visible {
+      color: var(--colour-focus-text);
+      text-decoration-color: var(--colour-focus-highlight);
+    }
+
+    button:focus-visible {
+      color: var(--colour-focus-highlight);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-bar">
+      <a href="/sign-in" class="site-logo-link">
+        <span class="site-logo" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 504.58 477.13" focusable="false">
+            <defs>
+              <linearGradient id="logo-swoosh" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop stop-color="var(--c0-primary)" offset="0%"></stop>
+                <stop stop-color="light-dark(var(--c2-primary), var(--c0-accent))" offset="50%"></stop>
+                <stop stop-color="var(--c0-primary)" offset="100%"></stop>
+              </linearGradient>
+            </defs>
+            <g fill="var(--_logo-ink, var(--colour-text-body))">
+              <path d="M184.6,441.62c0.8,9.26,1.74,17.53,2.1,25.83c0.13,3.09-0.09,7.35-1.98,9.08c-2.39,2.19-10.16-2.06-11.17-5.96c-0.94-3.63-1.48-7.64-0.96-11.31c3.51-24.88,5.67-50.12,11.47-74.48c8.91-37.39,20.41-74.15,30.79-111.19c0.44-1.56,0.7-3.17,1.05-4.76c-1.4,1.01-2.94,1.86-4.18,3.04c-12.42,11.84-24.82,23.71-37.15,35.64c-1.64,1.59-3.29,3.42-4.19,5.46c-20.01,45.6-39.92,91.24-59.79,136.9c-0.85,1.94-1.39,4.14-1.52,6.25c-0.27,4.26-1.84,6.68-6.53,5.89c-5.61-0.94-8.91-4.53-7.97-8.89c0.31-1.44,1.07-2.79,1.7-4.14c17.81-38.58,35.62-77.15,53.41-115.73c0.54-1.16,0.81-2.45,1.21-3.68c-1.24,0.59-2.57,1.05-3.7,1.81c-9.09,6.13-17.78,12.98-27.33,18.28c-7.93,4.4-15.03,0.74-17.44-7.2c-1.19-3.94,0.33-6.61,4.12-5.53c13.9,3.99,22.57-4.84,31.96-12.15c1.18-0.92,2.28-1.95,3.47-2.86c14.12-10.7,24.59-23.7,32.32-40.18c30.09-64.14,63.33-126.64,101.67-186.35c11.34-17.66,21.46-36.09,28.36-56.1c0.53-1.53,3.47-3.33,5.1-3.16c5.84,0.6,10.35,7.74,8.69,13.38c-0.94,3.17-2.42,6.21-3.92,9.17c-26.92,53.1-50.69,107.59-72.47,162.97c-0.24,0.62-0.5,1.24-0.66,1.89c-0.28,1.09-0.48,2.19-0.72,3.29c1.01-0.64,2.22-1.11,3-1.96c22.63-24.47,45.63-48.61,67.58-73.67c7.92-9.04,13.84-20,19.76-30.6c22.13-39.66,51.44-73.67,82.49-106.36c3.55-3.74,7.25-7.36,10.96-10.95c3.32-3.2,7.22-4.72,11.17-1.47c3.88,3.19,5.68,7.45,3.35,12.47c-0.76,1.64-1.87,3.15-3.04,4.55c-29.44,35.11-58.09,70.92-88.63,105.06c-25.06,28.01-45.35,58.83-61.44,92.44c-17.68,36.94-34.21,74.44-51.29,111.67c-1.51,3.3-1.91,5.76,1.52,8.54c1.38,1.12,1.3,5.04,0.72,7.4c-1.34,5.45-3.58,10.66-5.02,16.09c-0.39,1.46,0.34,3.75,1.4,4.85c0.57,0.59,3.09-0.22,4.44-0.95c9.94-5.33,11.1-5.42,19.82,2.1c3.75,3.23,7.16,3.57,11.33,1.28c6.14-3.36,12.3-6.7,18.58-9.76c9.49-4.62,18.61-4.92,26.63,3.19c8.64,8.74,18.35,9.9,29.2,4.48c3.57-1.78,7.46-2.92,11.04-4.68c18.86-9.21,38.27-11.39,58.77-6.13c22.84,5.85,45.3,2.47,67.46-4.32c4.93-1.51,9.92-3.01,14.99-3.72c1.95-0.28,4.21,1.64,6.32,2.56c-1.1,2.04-1.76,4.6-3.41,5.98c-2.24,1.87-5.12,3.14-7.91,4.15c-22.25,7.99-44.95,12.41-68.67,8.3c-3.12-0.54-6.31-0.72-9.39-1.41c-23.48-5.25-45.68-1.83-66.75,9.62c-1.6,0.87-3.37,1.44-5.03,2.22c-12.1,5.71-22.53,3.34-31.8-6.12c-6.69-6.82-8.41-6.98-16.96-2.66c-4.91,2.48-9.59,5.42-14.56,7.73c-10.29,4.79-20.31,5.04-29.29-3.03c-2.44-2.19-4.5-2.77-6.64,0.05c-5.09,6.72-10.92,9.57-18.72,4.04c-0.3-0.22-2.65,1.42-3.06,2.55c-2.98,8.31-5.75,16.69-8.48,25.08c-1.29,3.96-2.26,8.02-3.55,11.98c-2.44,7.5-3.82,8.36-9.57,6.53c-6.06-1.92-4.98-6.37-3.52-10.59c9.1-26.45,16.93-53.45,27.81-79.16c17.92-42.31,37.85-83.77,56.87-125.61c0.98-2.15,1.4-4.56,2.08-6.85c-1.74,1.5-3.6,2.87-5.19,4.51c-14.49,14.96-28.95,29.95-43.36,45c-1.46,1.52-2.91,3.32-3.61,5.27c-17.42,48.51-33.27,97.46-40.63,148.7C186.35,417.55,185.69,430.05,184.6,441.62z M272.77,122.91c-0.32-0.59-0.61-1.12-0.9-1.65c-0.82,0.71-1.91,1.26-2.41,2.15c-5.73,10.15-11.58,20.25-17.01,30.57c-21.12,40.09-42.1,80.25-63.1,120.4c-0.57,1.1-0.71,2.42-1.06,3.63c1.05-0.64,2.27-1.11,3.13-1.94c10.7-10.27,21.39-20.55,31.96-30.94c1.36-1.34,2.37-3.21,3.09-5.01c14.95-37.61,29.83-75.25,44.72-112.88C271.75,125.85,272.22,124.44,272.77,122.91z M357.39,99.36c1.43-1.5,2.43-2.39,3.25-3.43c14.79-18.63,29.58-37.27,44.31-55.95c1.06-1.34,1.69-3.02,2.53-4.54c-1.4,1.04-3.12,1.82-4.16,3.15c-15.04,19.07-29.98,38.2-44.94,57.33c-0.41,0.52-0.79,1.09-1.03,1.7C357.2,97.96,357.35,98.43,357.39,99.36z"></path>
+              <path d="M0,436.38c1.67-6.49,3.59-15.62,6.39-24.47c18.6-58.76,42.78-115.24,70.91-170.02c13.54-26.37,27.13-52.77,42.12-78.33c9.74-16.6,21.96-31.76,33.23-47.45c2.12-2.95,4.64-5.88,7.62-7.84c2.66-1.74,6.73-3.63,9.25-2.76c4.21,1.45,7.28,5.43,6.78,10.59c-1.47,15.08-2.73,30.18-9.26,44.27c-12.55,27.05-25.4,53.98-37.09,81.41c-7.88,18.48-13.93,37.74-20.87,56.63c-1.08,2.95-2.11,6.09-3.98,8.52c-1.29,1.69-3.98,2.31-6.04,3.41c-0.78-2.04-2.55-4.3-2.17-6.1c1.73-8.11,3.11-16.5,6.38-24.02c9.44-21.68,20.17-42.81,29.57-64.51c10.65-24.59,20.58-49.49,30.43-74.42c2.17-5.49,2.83-11.62,3.84-17.51c0.23-1.33-0.63-3.39-1.69-4.2c-0.67-0.52-3.05,0.22-3.95,1.11c-5.4,5.4-11.13,10.6-15.76,16.63c-16.93,22.04-29.94,46.49-42.35,71.22c-26.76,53.33-52.67,107.08-73.05,163.24c-7.14,19.68-12.3,40.08-18.07,60.24c-1.25,4.36-2.7,10.02,2.3,12.74c4.93,2.68,9.19-1.42,12.02-4.86c5.76-7.01,11.23-14.38,15.87-22.16c3.82-6.41,8.03-9.93,13.97-9.11c3.69,0.51,5.77,2.46,4.43,6.09c-2.35,6.37-5.12,12.59-7.96,18.77c-0.43,0.94-2.33,2.05-3.22,1.81c-4.44-1.18-6.12,1.99-8.47,4.56c-4.04,4.42-8.26,8.69-12.59,12.83c-5.49,5.25-11.94,6.58-18.88,3.31C2.69,452.66,0.45,446.38,0,436.38z"></path>
+            </g>
+            <path fill="url(#logo-swoosh)" class="logo-site-swoosh" d="M485.64,411.32c5.83,0,11.68-0.28,17.48,0.16c1.9,0.14,1.98,6.26,0.13,6.4c-45.87,3.42-91.53,8.73-136.71,17.27c-47.78,9.04-95.35,19.17-143.02,28.75c-3.49,0.7-7.12,0.75-10.68,1.1c3.38-1.75,6.58-4.34,10.17-5.14c52.01-11.65,103.89-23.99,156.19-34.19C414.28,418.83,485.56,410.88,485.64,411.32z"></path>
+            <path class="logo-site-stop" d="M92.68,404.2c3.3,0.17,4.44,1.63,2.07,7.04c-1.41,3.22-3.25,6.54-5.77,8.87c-1.32,1.22-4.93,1.15-6.74,0.2c-1.16-0.61-1.7-4.12-1.15-5.93C82.48,409.78,82.58,403.58,92.68,404.2z"></path>
+          </svg>
+        </span>
+        <span>Example service</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="error-summary" id="error-summary" tabindex="-1" hidden>
+      <div role="alert">
+        <h2>There is a problem</h2>
+        <ul id="error-list"></ul>
+      </div>
+    </div>
+
+    <div id="sign-in">
+      <div class="page-heading">
+        <h1>Sign in</h1>
+      </div>
+
+      <form id="sign-in-form" method="post" action="/sign-in" novalidate>
+        <div class="field" id="email-field">
+          <label for="email">Email address</label>
+          <p class="error-message" id="email-error" hidden>
+            <span class="visually-hidden">Error:</span> Enter your email address
+          </p>
+          <input id="email" name="email" type="email" autocomplete="email" spellcheck="false">
+        </div>
+
+        <div class="field" id="password-field">
+          <label for="password">Password</label>
+          <p class="error-message" id="password-error" hidden>
+            <span class="visually-hidden">Error:</span> Enter your password
+          </p>
+          <input id="password" name="password" type="password" autocomplete="current-password">
+        </div>
+
+        <button type="submit">Sign in</button>
+      </form>
+    </div>
+
+    <div class="panel" id="success" tabindex="-1" hidden>
+      <h1>You are signed in</h1>
+      <p>This is as far as the example goes.</p>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById("sign-in-form");
+    const signIn = document.getElementById("sign-in");
+    const summary = document.getElementById("error-summary");
+    const list = document.getElementById("error-list");
+    const success = document.getElementById("success");
+
+    const fields = [
+      { id: "email", message: "Enter your email address" },
+      { id: "password", message: "Enter your password" },
+    ];
+
+    function clearError(field) {
+      const input = document.getElementById(field.id);
+      document.getElementById(`${field.id}-field`).classList.remove("field--error");
+      document.getElementById(`${field.id}-error`).hidden = true;
+      input.classList.remove("input--error");
+      input.removeAttribute("aria-describedby");
+    }
+
+    function showError(field) {
+      const input = document.getElementById(field.id);
+      document.getElementById(`${field.id}-field`).classList.add("field--error");
+      document.getElementById(`${field.id}-error`).hidden = false;
+      input.classList.add("input--error");
+      input.setAttribute("aria-describedby", `${field.id}-error`);
+
+      const link = document.createElement("a");
+      link.href = `#${field.id}`;
+      link.textContent = field.message;
+      const item = document.createElement("li");
+      item.appendChild(link);
+      list.appendChild(item);
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      fields.forEach(clearError);
+      list.textContent = "";
+
+      const errors = fields.filter(
+        (field) => document.getElementById(field.id).value.trim() === ""
+      );
+
+      if (errors.length === 0) {
+        summary.hidden = true;
+        signIn.hidden = true;
+        success.hidden = false;
+        success.focus();
+        return;
+      }
+
+      errors.forEach(showError);
+      summary.hidden = false;
+
+      // Moving focus to the error summary is what the second scenario in
+      // features/sign-in.feature checks for. Comment out the next line to
+      // see what a failing report looks like.
+      summary.focus();
+    });
+
+    // Error summary links move focus to the field they describe.
+    list.addEventListener("click", (event) => {
+      const link = event.target.closest("a");
+      if (!link) return;
+      event.preventDefault();
+      document.getElementById(link.getAttribute("href").slice(1)).focus();
+    });
+  </script>
+</body>
+</html>
