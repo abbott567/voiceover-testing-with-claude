@@ -50,7 +50,7 @@ Only use these steps. If a scenario needs something else, stop testing and propo
 | Given I am on "<path>" | `open -a Safari` with the base URL plus the path, then wait a second |
 | When I move the VoiceOver cursor to the first item | `vo.sh first` |
 | When I move the VoiceOver cursor to the next item | `vo.sh next` |
-| When I move through the page | `vo.sh first`, then `vo.sh next` until VoiceOver gives its hint about exiting the web area, or announces nothing new twice running |
+| When I move through the page | `vo.sh first`, then `vo.sh next` until VoiceOver gives its hint about exiting the web area, or announces nothing new twice in a row |
 | When I move the VoiceOver cursor to the "<label>" field | `vo.sh find "<label>" field` |
 | When I activate the "<name>" button | `vo.sh find "<name>" button`, then `vo.sh activate` |
 | Then the announcement should include "<text>" | the last announcement contains the text |
@@ -59,7 +59,4 @@ Only use these steps. If a scenario needs something else, stop testing and propo
 | Then no heading level should be skipped | across all announcements, heading levels never jump by more than one |
 | Then the error summary should list "<text>" | `vo.sh next` through the error summary until an announcement includes the text |
 
-Text fields announce in two steps: the first move onto one says the label
-("Email address"), the next move enters it and says the full thing ("Email
-address Error: Enter your email address email field"). `vo.sh find "<label>"
-field` handles that for you. When walking with `vo.sh next`, expect both.
+Text fields announce in two steps: the first move announces the label, for example "Email address", and the next move enters the field and announces the full thing, for example "Email address Error: Enter your email address email field". `vo.sh find "<label>" field` handles that for you. When walking with `vo.sh next`, expect to encounter both.

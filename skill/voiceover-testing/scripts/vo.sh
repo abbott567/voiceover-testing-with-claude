@@ -1,29 +1,24 @@
 #!/usr/bin/env bash
 
-# A thin wrapper around VoiceOver's AppleScript dictionary
+# A wrapper around VoiceOver's AppleScript dictionary
 #
-#   vo.sh start            turn VoiceOver on, if it isn't already
-#   vo.sh stop             turn VoiceOver off
-#   vo.sh first            move the VoiceOver cursor to the first item inside the web page
-#   vo.sh next             move the VoiceOver cursor right
-#   vo.sh prev             move the VoiceOver cursor left
-#   vo.sh activate         press the item in the VoiceOver cursor, like VO-Space
-#   vo.sh find <name> [text]...
-#                          move through the page from the top until an announcement contains
-#                          the name as whole words and the rest anywhere, e.g. find "Sign in" button
-#   vo.sh last             print again what VoiceOver said after the last command above
+#   vo.sh start                   turn VoiceOver on, if it isn't already
+#   vo.sh stop                    turn VoiceOver off
+#   vo.sh first                   move the VoiceOver cursor to the first item inside the web page
+#   vo.sh next                    move the VoiceOver cursor right
+#   vo.sh prev                    move the VoiceOver cursor left
+#   vo.sh activate                press the item in the VoiceOver cursor, like VO-Space
+#   vo.sh find <name> [text]...   move through the page from the top until an announcement contains the name as whole words and the rest anywhere, for example: find "Sign in" button
+#   vo.sh last                    print everything VoiceOver said after the last command runs
 #
-# Every command that moves the cursor or presses something prints what VoiceOver announced
-# as a result, so you can log that directly, or run `vo.sh last` afterwards to see it again.
+# Every command that moves the cursor or presses something prints what VoiceOver announced as a result, so you can log that directly, or run `vo.sh last` afterwards to see it again.
 set -euo pipefail
 
 LAST_FILE="${TMPDIR:-/tmp}/vo-sh-last-announcement"
 
 vo() { osascript -e "tell application \"VoiceOver\" to $1"; }
 
-# Collects everything VoiceOver says over the next couple of seconds and joins it with commas.
-# VoiceOver announces an item in chunks, and its "last phrase" only ever holds the latest chunk,
-# so one read straight after a move can miss most of it.
+# Collects everything VoiceOver says over the next couple of seconds and joins it with commas. VoiceOver announces an item in chunks, and its "last phrase" only ever holds the latest chunk, so only reading once straight after a move can miss most of it.
 capture() {
   local before=$1 phrase previous='' out='' quiet=0
   for _ in $(seq 1 12); do
@@ -51,9 +46,7 @@ act() {
   capture "$before"
 }
 
-# Puts the VoiceOver cursor on the first item inside the web page. From the window's first item
-# that means walking past the toolbar to the "web content" area and interacting with it. If no
-# web content area turns up, the cursor was already inside the page, so just go back to the top.
+# Puts the VoiceOver cursor on the first item inside the web page. It starts from the window's first item, which means walking past the toolbar to the "web content" area and interacting with it. If no web content area turns up, the cursor was already inside the page, so just go back to the top.
 enter_web_content() {
   local phrase
   vo 'tell vo cursor to move to first item'
@@ -70,9 +63,7 @@ enter_web_content() {
   act 'tell vo cursor to move to first item'
 }
 
-# True when the announcement contains the name as whole words and every other needle anywhere,
-# ignoring case. Whole words, so "Email address" matches "Email address email field" but not
-# "Enter your email addresses".
+# True when the announcement contains the name as whole words and every other needle anywhere, ignoring case. Whole words, so "Email address" matches "Email address email field" but not "Enter your email addresses".
 phrase_has() {
   local phrase=$1 name=$2 needle escaped regex
   shift 2
@@ -114,8 +105,7 @@ case "${1:-}" in
         echo "$announcement"
         exit 0
       fi
-      # VoiceOver's hint about leaving the web area, or nothing new announced twice running,
-      # means the cursor has stopped moving
+      # VoiceOver's hint about leaving the web area, or nothing new announced twice in a row, means the cursor has stopped moving
       if [[ "$announcement" == *"exit this web area"* ]]; then break; fi
       if [[ -z "$announcement" ]]; then
         empties=$((empties + 1))
